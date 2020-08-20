@@ -1,2 +1,1 @@
-include ':app'
-rootProject.name='lib-network-management'
+include ':lib-network-measurement'
