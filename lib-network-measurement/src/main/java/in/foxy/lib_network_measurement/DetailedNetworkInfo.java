@@ -181,40 +181,40 @@ public class DetailedNetworkInfo {
 						CellInfoWcdma cellInfoWcdma = (CellInfoWcdma) cellInfos.get(i);
 						CellSignalStrengthWcdma cellSignalStrengthWcdma = cellInfoWcdma.getCellSignalStrength();
 						simStat.put("type","wcdma");
-						simStat.put("signalLevelSim",cellSignalStrengthWcdma.getLevel());
-						simStat.put("asuLevelSim",cellSignalStrengthWcdma.getAsuLevel());
-						simStat.put("dbmSim",cellSignalStrengthWcdma.getDbm());
+						simStat.put("signalLevel",cellSignalStrengthWcdma.getLevel());
+						simStat.put("asuLevel",cellSignalStrengthWcdma.getAsuLevel());
+						simStat.put("dbm",cellSignalStrengthWcdma.getDbm());
 						
 					} else if (cellInfos.get(i) instanceof CellInfoGsm) {
 						CellInfoGsm cellInfogsm = (CellInfoGsm) cellInfos.get(i);
 						CellSignalStrengthGsm cellSignalStrengthGsm = cellInfogsm.getCellSignalStrength();
 						simStat.put("type","gsm");
-						simStat.put("signalLevelSim",cellSignalStrengthGsm.getLevel());
-						simStat.put("asuLevelSim",cellSignalStrengthGsm.getAsuLevel());
-						simStat.put("dbmSim",cellSignalStrengthGsm.getDbm());
+						simStat.put("signalLevel",cellSignalStrengthGsm.getLevel());
+						simStat.put("asuLevel",cellSignalStrengthGsm.getAsuLevel());
+						simStat.put("dbm",cellSignalStrengthGsm.getDbm());
 						
 					} else if (cellInfos.get(i) instanceof CellInfoLte) {
 						CellInfoLte cellInfoLte = (CellInfoLte) cellInfos.get(i);
 						CellSignalStrengthLte cellSignalStrengthLte = cellInfoLte.getCellSignalStrength();
 						simStat.put("type","lte");
-						simStat.put("signalLevelSim",cellSignalStrengthLte.getLevel());
-						simStat.put("asuLevelSim",cellSignalStrengthLte.getAsuLevel());
-						simStat.put("dbmSim",cellSignalStrengthLte.getDbm());
+						simStat.put("signalLevel",cellSignalStrengthLte.getLevel());
+						simStat.put("asuLevel",cellSignalStrengthLte.getAsuLevel());
+						simStat.put("dbm",cellSignalStrengthLte.getDbm());
 						if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-							simStat.put("rssiSim",cellSignalStrengthLte.getRssi());
-							simStat.put("snrSim",cellSignalStrengthLte.getRssnr());
+							simStat.put("rssi",cellSignalStrengthLte.getRssi());
+							simStat.put("snr",cellSignalStrengthLte.getRssnr());
 						}
 						
 					} else if (cellInfos.get(i) instanceof CellInfoCdma) {
 						CellInfoCdma cellInfoCdma = (CellInfoCdma) cellInfos.get(i);
 						CellSignalStrengthCdma cellSignalStrengthCdma = cellInfoCdma.getCellSignalStrength();
 						simStat.put("type","cdma");
-						simStat.put("signalLevelSim",cellSignalStrengthCdma.getLevel());
-						simStat.put("asuLevelSim",cellSignalStrengthCdma.getAsuLevel());
-						simStat.put("dbmSim",cellSignalStrengthCdma.getDbm());
+						simStat.put("signalLevel",cellSignalStrengthCdma.getLevel());
+						simStat.put("asuLevel",cellSignalStrengthCdma.getAsuLevel());
+						simStat.put("dbm",cellSignalStrengthCdma.getDbm());
 						if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-							simStat.put("rssiSim",cellSignalStrengthCdma.getEvdoDbm());
-							simStat.put("snrSim",cellSignalStrengthCdma.getEvdoSnr());
+							simStat.put("rssi",cellSignalStrengthCdma.getEvdoDbm());
+							simStat.put("snr",cellSignalStrengthCdma.getEvdoSnr());
 						}
 					}
 					simCardNetworkCapabilities.add(simStat);
