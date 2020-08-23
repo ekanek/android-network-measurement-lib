@@ -29,15 +29,17 @@ import androidx.annotation.NonNull;
 import java.util.HashMap;
 import java.util.List;
 
-enum NETWORK {
-	NOT_CONNECTED, UNKNOWN, WIFI, TYPE_2G, TYPE_3G, TYPE_4G, TYPE_5G
-}
 
 
 /**
  * @author Pardeep Kumar
  */
 public class DetailedNetworkInfo {
+	
+	enum NETWORK {
+		NOT_CONNECTED, UNKNOWN, WIFI, TYPE_2G, TYPE_3G, TYPE_4G, TYPE_5G
+	}
+	
 	private static TelephonyManager telephonyManager = null;
 	private static ConnectivityManager connectivityManager = null;
 	private static WifiManager wifiManager = null;
