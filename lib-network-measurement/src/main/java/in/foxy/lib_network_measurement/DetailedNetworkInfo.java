@@ -26,9 +26,10 @@ import android.telephony.SubscriptionManager;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import androidx.annotation.NonNull;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-
+import java.util.Map;
 
 
 /**
@@ -44,9 +45,9 @@ public class DetailedNetworkInfo {
 	private static ConnectivityManager connectivityManager = null;
 	private static WifiManager wifiManager = null;
 	private static NetworkRequest networkRequest;
-	private static HashMap<String, String> simCardsInfo = null;
-	private static HashMap<String, Object> wifiStats = null;
-	private static HashMap<String,Object> simStats = null;
+	private static Map<String, Object> wifiStats = null;
+	private static List<Map<String,Object>> listSimCardInfo = null;
+	private static List<Map<String,Object>> simCardSignalInfo = null;
 	
 	public static void initialize (Context context) {
 		telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
@@ -57,9 +58,9 @@ public class DetailedNetworkInfo {
 				                         .addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR)
 				                         .build();
 		
-		simCardsInfo = new HashMap<String, String>();
+		listSimCardInfo=new ArrayList<>();
+		simCardSignalInfo=new ArrayList<>();
 		wifiStats = new HashMap<String, Object>();
-		simStats = new HashMap<String,Object>();
 		extractAvailableSimCardsInfo(context);
 	}
 	
@@ -74,16 +75,17 @@ public class DetailedNetworkInfo {
 			return;
 		}
 		List<SubscriptionInfo> subscriptionInfos = SubscriptionManager.from(context).getActiveSubscriptionInfoList();
-		simCardsInfo.put("noOfSimsAvailable", "" + subscriptionInfos.size());
 		for (int i = 0; i < subscriptionInfos.size(); i++) {
+			Map<String,Object> simInfo = new HashMap<>();
 			SubscriptionInfo subscriptionInfo = subscriptionInfos.get(i);
-			simCardsInfo.put("sim" + i + "Number", subscriptionInfo.getNumber());
-			simCardsInfo.put("sim" + i + "Carrier", "" + subscriptionInfo.getCarrierName());
-			simCardsInfo.put("sim" + i + "RoamingEnabled", "" + subscriptionInfo.getDataRoaming());
+			simInfo.put("simNumber", subscriptionInfo.getNumber());
+			simInfo.put("simCarrier", "" + subscriptionInfo.getCarrierName());
+			simInfo.put("simRoamingEnabled", "" + subscriptionInfo.getDataRoaming());
+			listSimCardInfo.add(simInfo);
 		}
 	}
 	
-	private static HashMap<String,Object> getWifiSignalInfo (Context context) {
+	public static Map<String,Object> getWifiSignalInfo (Context context) {
 		int numberOfLevels = 5;
 		WifiInfo wifiInfo = wifiManager.getConnectionInfo();
 		wifiStats.put("frequency", wifiInfo.getFrequency());
@@ -98,59 +100,62 @@ public class DetailedNetworkInfo {
 		return wifiStats;
 	}
 	
-	private static HashMap<String,Object> getSimSignalInfo (Context context) {
+	public static List<Map<String,Object>> getSimSignalInfo (Context context) {
 		if (context.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 			Log.e("DetailedNetworkInfo:getSimSignalInfo()","permission not granted : ACCESS_COARSE_LOCATION");
 			return null;
 		}
-		
-		
 		List<CellInfo> cellInfos = telephonyManager.getAllCellInfo();
 		if (cellInfos != null) {
-			simStats.put("simCount",cellInfos.size());
 			for (int i = 0; i < cellInfos.size(); i++) {
 				if (cellInfos.get(i).isRegistered()) {
+					Map<String,Object> simStat=new HashMap<>();
 					if (cellInfos.get(i) instanceof CellInfoWcdma) {
 						CellInfoWcdma cellInfoWcdma = (CellInfoWcdma) cellInfos.get(i);
 						CellSignalStrengthWcdma cellSignalStrengthWcdma = cellInfoWcdma.getCellSignalStrength();
-						simStats.put("signalLevelSim"+i,cellSignalStrengthWcdma.getLevel());
-						simStats.put("asuLevelSim"+i,cellSignalStrengthWcdma.getAsuLevel());
-						simStats.put("dbmSim"+i,cellSignalStrengthWcdma.getDbm());
+						simStat.put("type","wcdma");
+						simStat.put("signalLevelSim",cellSignalStrengthWcdma.getLevel());
+						simStat.put("asuLevelSim",cellSignalStrengthWcdma.getAsuLevel());
+						simStat.put("dbmSim",cellSignalStrengthWcdma.getDbm());
 						
 					} else if (cellInfos.get(i) instanceof CellInfoGsm) {
 						CellInfoGsm cellInfogsm = (CellInfoGsm) cellInfos.get(i);
 						CellSignalStrengthGsm cellSignalStrengthGsm = cellInfogsm.getCellSignalStrength();
-						simStats.put("signalLevelSim"+i,cellSignalStrengthGsm.getLevel());
-						simStats.put("asuLevelSim"+i,cellSignalStrengthGsm.getAsuLevel());
-						simStats.put("dbmSim"+i,cellSignalStrengthGsm.getDbm());
+						simStat.put("type","gsm");
+						simStat.put("signalLevelSim",cellSignalStrengthGsm.getLevel());
+						simStat.put("asuLevelSim",cellSignalStrengthGsm.getAsuLevel());
+						simStat.put("dbmSim",cellSignalStrengthGsm.getDbm());
 						
 					} else if (cellInfos.get(i) instanceof CellInfoLte) {
 						CellInfoLte cellInfoLte = (CellInfoLte) cellInfos.get(i);
 						CellSignalStrengthLte cellSignalStrengthLte = cellInfoLte.getCellSignalStrength();
-						simStats.put("signalLevelSim"+i,cellSignalStrengthLte.getLevel());
-						simStats.put("asuLevelSim"+i,cellSignalStrengthLte.getAsuLevel());
-						simStats.put("dbmSim"+i,cellSignalStrengthLte.getDbm());
+						simStat.put("type","lte");
+						simStat.put("signalLevelSim",cellSignalStrengthLte.getLevel());
+						simStat.put("asuLevelSim",cellSignalStrengthLte.getAsuLevel());
+						simStat.put("dbmSim",cellSignalStrengthLte.getDbm());
 						if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-							simStats.put("rssiSim"+i,cellSignalStrengthLte.getRssi());
-							simStats.put("snrSim"+i,cellSignalStrengthLte.getRssnr());
+							simStat.put("rssiSim",cellSignalStrengthLte.getRssi());
+							simStat.put("snrSim",cellSignalStrengthLte.getRssnr());
 						}
 						
 					} else if (cellInfos.get(i) instanceof CellInfoCdma) {
 						CellInfoCdma cellInfoCdma = (CellInfoCdma) cellInfos.get(i);
 						CellSignalStrengthCdma cellSignalStrengthCdma = cellInfoCdma.getCellSignalStrength();
-						simStats.put("signalLevelSim"+i,cellSignalStrengthCdma.getLevel());
-						simStats.put("asuLevelSim"+i,cellSignalStrengthCdma.getAsuLevel());
-						simStats.put("dbmSim"+i,cellSignalStrengthCdma.getDbm());
+						simStat.put("type","cdma");
+						simStat.put("signalLevelSim",cellSignalStrengthCdma.getLevel());
+						simStat.put("asuLevelSim",cellSignalStrengthCdma.getAsuLevel());
+						simStat.put("dbmSim",cellSignalStrengthCdma.getDbm());
 						if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-							simStats.put("rssiSim"+i,cellSignalStrengthCdma.getEvdoDbm());
-							simStats.put("snrSim"+i,cellSignalStrengthCdma.getEvdoSnr());
+							simStat.put("rssiSim",cellSignalStrengthCdma.getEvdoDbm());
+							simStat.put("snrSim",cellSignalStrengthCdma.getEvdoSnr());
 						}
 					}
+					simCardSignalInfo.add(simStat);
 				}
 			}
 			
 		}
-		return simStats;
+		return simCardSignalInfo;
 	}
 	
 	
@@ -207,12 +212,11 @@ public class DetailedNetworkInfo {
 		return String.valueOf(network_name);
 	}
 	
-	
-	public static HashMap<String,String> getSimCardInfo(){
-		return simCardsInfo;
+	public static List<Map<String,Object>> getSimCardInfo(){
+		return listSimCardInfo;
 	}
 	
-    public static void registerNetworkMonitorCallback(final Context context, final INetworkMonitor iNetworkMonitor){
+    public static void registerNetworkMonitorCallback(final INetworkMonitor iNetworkMonitor){
         connectivityManager.registerNetworkCallback(networkRequest, new ConnectivityManager.NetworkCallback(){
             @Override
             public void onAvailable(@NonNull android.net.Network network) {
@@ -235,14 +239,6 @@ public class DetailedNetworkInfo {
 	        @Override
 	        public void onCapabilitiesChanged (@NonNull Network network, @NonNull NetworkCapabilities networkCapabilities) {
 		        super.onCapabilitiesChanged(network, networkCapabilities);
-		        String getActiveNetwork = getActiveNetworkName(context);
-		        if(getActiveNetwork.equalsIgnoreCase("wifi")){
-			        iNetworkMonitor.onConnectedNetworkInfoAvailable(getActiveNetwork,getWifiSignalInfo(context));
-		        }else
-		        {
-			        iNetworkMonitor.onConnectedNetworkInfoAvailable(getActiveNetwork,getSimSignalInfo(context));
-		        }
-		        
 		        iNetworkMonitor.onNetworkSpeedChanges(networkCapabilities.getLinkUpstreamBandwidthKbps(),
 				        networkCapabilities.getLinkDownstreamBandwidthKbps());
 	        }
