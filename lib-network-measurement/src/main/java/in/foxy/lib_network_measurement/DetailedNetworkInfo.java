@@ -45,9 +45,9 @@ public class DetailedNetworkInfo {
 	private static ConnectivityManager connectivityManager = null;
 	private static WifiManager wifiManager = null;
 	private static NetworkRequest networkRequest;
-	private static Map<String, Object> wifiStats = null;
-	private static List<Map<String,Object>> listSimCardInfo = null;
-	private static List<Map<String,Object>> simCardSignalInfo = null;
+	private static Map<String, Object> connectedWifi = null;
+	private static List<Map<String,Object>> availableSimCards = null;
+	private static List<Map<String,Object>> simCardNetworkCapabilities = null;
 	
 	public static void initialize (Context context) {
 		telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
@@ -58,17 +58,16 @@ public class DetailedNetworkInfo {
 				                         .addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR)
 				                         .build();
 		
-		listSimCardInfo=new ArrayList<>();
-		simCardSignalInfo=new ArrayList<>();
-		wifiStats = new HashMap<String, Object>();
+		availableSimCards=new ArrayList<>();
+		simCardNetworkCapabilities=new ArrayList<>();
+		connectedWifi = new HashMap<String, Object>();
 		extractAvailableSimCardsInfo(context);
 	}
 	
 	/**
-	 * Extracts noOfSimsAvailable,SimXNumber, simXCarrier, simXRoamingEnabled
+	 * Extracts [number,carrier, roamingEnabled]
 	 * @param context
 	 */
-	
 	private static void extractAvailableSimCardsInfo (Context context) {
 		if (context.checkSelfPermission(Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
 			Log.e("DetailedNetworkInfo:extractAvailableSimCardsInfo()","permission not granted : READ_PHONE_STATE");
@@ -76,33 +75,33 @@ public class DetailedNetworkInfo {
 		}
 		List<SubscriptionInfo> subscriptionInfos = SubscriptionManager.from(context).getActiveSubscriptionInfoList();
 		for (int i = 0; i < subscriptionInfos.size(); i++) {
-			Map<String,Object> simInfo = new HashMap<>();
+			Map<String,Object> simCard = new HashMap<>();
 			SubscriptionInfo subscriptionInfo = subscriptionInfos.get(i);
-			simInfo.put("number", subscriptionInfo.getNumber());
-			simInfo.put("carrier", "" + subscriptionInfo.getCarrierName());
-			simInfo.put("roamingEnabled", "" + subscriptionInfo.getDataRoaming());
-			listSimCardInfo.add(simInfo);
+			simCard.put("number", subscriptionInfo.getNumber());
+			simCard.put("carrier", "" + subscriptionInfo.getCarrierName());
+			simCard.put("roamingEnabled", "" + subscriptionInfo.getDataRoaming());
+			availableSimCards.add(simCard);
 		}
 	}
 	
 	/**
 	 * provide information of connected wifi, i.e frequency,ipAddress,linkSpeed,signalStrength,signalLevel,rxLinkSpeed,wifiNetworkName
 	 * @param context
-	 * @return Map<String,Object> wifiStats
+	 * @return Map<String,Object> connectedWifi
 	 */
-	public static Map<String,Object> getWifiSignalInfo (Context context) {
+	public static Map<String,Object> getConnectedWifiInfo (Context context) {
 		int numberOfLevels = 5;
 		WifiInfo wifiInfo = wifiManager.getConnectionInfo();
-		wifiStats.put("frequency", wifiInfo.getFrequency());
-		wifiStats.put("ipAddress", wifiInfo.getIpAddress());
-		wifiStats.put("linkSpeed", wifiInfo.getLinkSpeed());
-		wifiStats.put("signalStrength", wifiInfo.getRssi());
-		wifiStats.put("signalLevel", WifiManager.calculateSignalLevel(wifiInfo.getRssi(), numberOfLevels));
+		connectedWifi.put("frequency", wifiInfo.getFrequency());
+		connectedWifi.put("ipAddress", wifiInfo.getIpAddress());
+		connectedWifi.put("linkSpeed", wifiInfo.getLinkSpeed());
+		connectedWifi.put("signalStrength", wifiInfo.getRssi());
+		connectedWifi.put("signalLevel", WifiManager.calculateSignalLevel(wifiInfo.getRssi(), numberOfLevels));
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-			wifiStats.put("rxLinkSpeed", wifiInfo.getRxLinkSpeedMbps());
-			wifiStats.put("wifiNetworkName", wifiInfo.getPasspointProviderFriendlyName());
+			connectedWifi.put("rxLinkSpeed", wifiInfo.getRxLinkSpeedMbps());
+			connectedWifi.put("wifiNetworkName", wifiInfo.getPasspointProviderFriendlyName());
 		}
-		return wifiStats;
+		return connectedWifi;
 	}
 	
 	/**
@@ -160,18 +159,18 @@ public class DetailedNetworkInfo {
 	
 	/**
 	 *  return basic information of available simcards in the slots.i.e number,carrier, roamingEnabled
-	 * @return List<Map<String,Object>> listSimCardInfo;
+	 * @return List<Map<String,Object>> availableSimCards;
 	 */
-	public static List<Map<String,Object>> getSimCardInfo(){
-		return listSimCardInfo;
+	public static List<Map<String,Object>> getAvailableSimCards(){
+		return availableSimCards;
 	}
 	
 	/**
 	 * Returns all signalling related information of the available sim cards.
 	 * @param context
-	 * @return List<Map<String,Object>> listSimCardInfo;
+	 * @return List<Map<String,Object>> simCardNetworkCapabilities;
 	 */
-	public static List<Map<String,Object>> getSimSignalInfo (Context context) {
+	public static List<Map<String,Object>> getSimCardNetworkCapabilities (Context context) {
 		if (context.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 			Log.e("DetailedNetworkInfo:getSimSignalInfo()","permission not granted : ACCESS_COARSE_LOCATION");
 			return null;
@@ -221,12 +220,12 @@ public class DetailedNetworkInfo {
 							simStat.put("snrSim",cellSignalStrengthCdma.getEvdoSnr());
 						}
 					}
-					simCardSignalInfo.add(simStat);
+					simCardNetworkCapabilities.add(simStat);
 				}
 			}
 			
 		}
-		return simCardSignalInfo;
+		return simCardNetworkCapabilities;
 	}
 	
 	public static void registerNetworkMonitorCallback(final INetworkMonitor iNetworkMonitor){
