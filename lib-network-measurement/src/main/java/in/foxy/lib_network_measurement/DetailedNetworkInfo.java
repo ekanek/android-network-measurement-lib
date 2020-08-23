@@ -78,13 +78,18 @@ public class DetailedNetworkInfo {
 		for (int i = 0; i < subscriptionInfos.size(); i++) {
 			Map<String,Object> simInfo = new HashMap<>();
 			SubscriptionInfo subscriptionInfo = subscriptionInfos.get(i);
-			simInfo.put("simNumber", subscriptionInfo.getNumber());
-			simInfo.put("simCarrier", "" + subscriptionInfo.getCarrierName());
-			simInfo.put("simRoamingEnabled", "" + subscriptionInfo.getDataRoaming());
+			simInfo.put("number", subscriptionInfo.getNumber());
+			simInfo.put("carrier", "" + subscriptionInfo.getCarrierName());
+			simInfo.put("roamingEnabled", "" + subscriptionInfo.getDataRoaming());
 			listSimCardInfo.add(simInfo);
 		}
 	}
 	
+	/**
+	 * provide information of connected wifi, i.e frequency,ipAddress,linkSpeed,signalStrength,signalLevel,rxLinkSpeed,wifiNetworkName
+	 * @param context
+	 * @return Map<String,Object> wifiStats
+	 */
 	public static Map<String,Object> getWifiSignalInfo (Context context) {
 		int numberOfLevels = 5;
 		WifiInfo wifiInfo = wifiManager.getConnectionInfo();
@@ -100,6 +105,72 @@ public class DetailedNetworkInfo {
 		return wifiStats;
 	}
 	
+	/**
+	 * Extracts current active network type
+	 * @param context
+	 * @return  NOT_CONNECTED,UNKNOWN,WIFI,TYPE_2G,TYPE_3G,TYPE_4G,TYPE_5G
+	 */
+	public static String getActiveNetworkName (Context context) {
+		NETWORK network_name = NETWORK.UNKNOWN;
+		NetworkInfo info = connectivityManager.getActiveNetworkInfo();
+		if (info == null || ! info.isConnected())
+			network_name = NETWORK.NOT_CONNECTED;
+		; // not connected
+		if (info.getType() == ConnectivityManager.TYPE_WIFI) {
+			network_name = NETWORK.WIFI;
+		}
+		if (info.getType() == ConnectivityManager.TYPE_MOBILE) {
+			int networkType = info.getSubtype();
+			switch (networkType) {
+				case TelephonyManager.NETWORK_TYPE_GPRS:
+				case TelephonyManager.NETWORK_TYPE_EDGE:
+				case TelephonyManager.NETWORK_TYPE_CDMA:
+				case TelephonyManager.NETWORK_TYPE_1xRTT:
+				case 11: // TelephonyManager.NETWORK_TYPE_IDEN: not available api< 8: using 11 as global
+				case 16:  // api < 25 class variable not present in TelephonyManager as NETWORK_TYPE_GSM
+					network_name = NETWORK.TYPE_2G;
+					break;
+				case TelephonyManager.NETWORK_TYPE_UMTS:
+				case TelephonyManager.NETWORK_TYPE_EVDO_0:
+				case TelephonyManager.NETWORK_TYPE_EVDO_A:
+				case TelephonyManager.NETWORK_TYPE_HSDPA:
+				case TelephonyManager.NETWORK_TYPE_HSUPA:
+				case TelephonyManager.NETWORK_TYPE_HSPA:
+				case 12: // TelephonyManager.NETWORK_TYPE_EVDO_B not able in api< 9: replacing by 12 for global
+				case 14: // TelephonyManager.NETWORK_TYPE_EHRPD not available in  api<11: replacing with 14 for global
+				case 15: // TelephonyManager.NETWORK_TYPE_HSPAP: not available in api<13: replacing with for 15
+				case 17: // TelephonyManager.NETWORK_TYPE_TD_SCDMA: not available in api<25: replacing by 17
+					network_name = NETWORK.TYPE_3G;
+					break;
+				case TelephonyManager.NETWORK_TYPE_LTE: // api<11: replace by 13
+				case 18: // TelephonyManager.NETWORK_TYPE_IWLAN: not available in api<25: replace by 18
+				case 19: // LTE_CA
+					network_name = NETWORK.TYPE_4G;
+					break;
+				case 20:
+					network_name = NETWORK.TYPE_5G;
+					break;
+				default:
+					network_name = NETWORK.UNKNOWN;
+					break;
+			}
+		}
+		return String.valueOf(network_name);
+	}
+	
+	/**
+	 *  return basic information of available simcards in the slots.i.e number,carrier, roamingEnabled
+	 * @return List<Map<String,Object>> listSimCardInfo;
+	 */
+	public static List<Map<String,Object>> getSimCardInfo(){
+		return listSimCardInfo;
+	}
+	
+	/**
+	 * Returns all signalling related information of the available sim cards.
+	 * @param context
+	 * @return List<Map<String,Object>> listSimCardInfo;
+	 */
 	public static List<Map<String,Object>> getSimSignalInfo (Context context) {
 		if (context.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 			Log.e("DetailedNetworkInfo:getSimSignalInfo()","permission not granted : ACCESS_COARSE_LOCATION");
@@ -158,65 +229,7 @@ public class DetailedNetworkInfo {
 		return simCardSignalInfo;
 	}
 	
-	
-	/**
-	 * Extracts current active network type
-	 * @param context
-	 * @return  NOT_CONNECTED,UNKNOWN,WIFI,TYPE_2G,TYPE_3G,TYPE_4G,TYPE_5G
-	 */
-	public static String getActiveNetworkName (Context context) {
-		NETWORK network_name = NETWORK.UNKNOWN;
-		NetworkInfo info = connectivityManager.getActiveNetworkInfo();
-		if (info == null || ! info.isConnected())
-			network_name = NETWORK.NOT_CONNECTED;
-		; // not connected
-		if (info.getType() == ConnectivityManager.TYPE_WIFI) {
-			network_name = NETWORK.WIFI;
-		}
-		if (info.getType() == ConnectivityManager.TYPE_MOBILE) {
-			int networkType = info.getSubtype();
-			switch (networkType) {
-				case TelephonyManager.NETWORK_TYPE_GPRS:
-				case TelephonyManager.NETWORK_TYPE_EDGE:
-				case TelephonyManager.NETWORK_TYPE_CDMA:
-				case TelephonyManager.NETWORK_TYPE_1xRTT:
-				case 11: // TelephonyManager.NETWORK_TYPE_IDEN: not available api< 8: using 11 as global
-				case 16:  // api < 25 class variable not present in TelephonyManager as NETWORK_TYPE_GSM
-					network_name = NETWORK.TYPE_2G;
-					break;
-				case TelephonyManager.NETWORK_TYPE_UMTS:
-				case TelephonyManager.NETWORK_TYPE_EVDO_0:
-				case TelephonyManager.NETWORK_TYPE_EVDO_A:
-				case TelephonyManager.NETWORK_TYPE_HSDPA:
-				case TelephonyManager.NETWORK_TYPE_HSUPA:
-				case TelephonyManager.NETWORK_TYPE_HSPA:
-				case 12: // TelephonyManager.NETWORK_TYPE_EVDO_B not able in api< 9: replacing by 12 for global
-				case 14: // TelephonyManager.NETWORK_TYPE_EHRPD not available in  api<11: replacing with 14 for global
-				case 15: // TelephonyManager.NETWORK_TYPE_HSPAP: not available in api<13: replacing with for 15
-				case 17: // TelephonyManager.NETWORK_TYPE_TD_SCDMA: not available in api<25: replacing by 17
-					network_name = NETWORK.TYPE_3G;
-					break;
-				case TelephonyManager.NETWORK_TYPE_LTE: // api<11: replace by 13
-				case 18: // TelephonyManager.NETWORK_TYPE_IWLAN: not available in api<25: replace by 18
-				case 19: // LTE_CA
-					network_name = NETWORK.TYPE_4G;
-					break;
-				case 20:
-					network_name = NETWORK.TYPE_5G;
-					break;
-				default:
-					network_name = NETWORK.UNKNOWN;
-					break;
-			}
-		}
-		return String.valueOf(network_name);
-	}
-	
-	public static List<Map<String,Object>> getSimCardInfo(){
-		return listSimCardInfo;
-	}
-	
-    public static void registerNetworkMonitorCallback(final INetworkMonitor iNetworkMonitor){
+	public static void registerNetworkMonitorCallback(final INetworkMonitor iNetworkMonitor){
         connectivityManager.registerNetworkCallback(networkRequest, new ConnectivityManager.NetworkCallback(){
             @Override
             public void onAvailable(@NonNull android.net.Network network) {
