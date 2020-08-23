@@ -16,13 +16,11 @@ public interface INetworkMonitor
     
     void onNetworkAvailabilityChange(boolean networkAvailable);
     
-    
     /**
      * onNetworkSpeedChanges : triggers whenever connected data network upload or download speed changes.
      * @param uploadSpeed
      * @param downloadSpeed
      */
     void onNetworkSpeedChanges(int uploadSpeed,int downloadSpeed);
-   
 }
 

@@ -1,6 +1,5 @@
 package in.foxy.lib_network_measurement;
 
-
 import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -31,7 +30,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-
 /**
  * @author Pardeep Kumar
  */
@@ -40,7 +38,6 @@ public class DetailedNetworkInfo {
 	enum NETWORK {
 		NOT_CONNECTED, UNKNOWN, WIFI, TYPE_2G, TYPE_3G, TYPE_4G, TYPE_5G
 	}
-	
 	private static TelephonyManager telephonyManager = null;
 	private static ConnectivityManager connectivityManager = null;
 	private static WifiManager wifiManager = null;
@@ -223,7 +220,6 @@ public class DetailedNetworkInfo {
 					simCardNetworkCapabilities.add(simStat);
 				}
 			}
-			
 		}
 		return simCardNetworkCapabilities;
 	}
