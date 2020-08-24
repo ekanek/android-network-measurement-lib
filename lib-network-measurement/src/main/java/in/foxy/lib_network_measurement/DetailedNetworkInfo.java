@@ -54,7 +54,6 @@ public class DetailedNetworkInfo {
 				                         .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
 				                         .addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR)
 				                         .build();
-		
 		availableSimCards=new ArrayList<>();
 		simCardNetworkCapabilities=new ArrayList<>();
 		connectedWifi = new HashMap<String, Object>();
