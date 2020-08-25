@@ -36,7 +36,13 @@ import java.util.Map;
 public class DetailedNetworkInfo {
 	
 	enum NETWORK {
-		NOT_CONNECTED, UNKNOWN, WIFI, TYPE_2G, TYPE_3G, TYPE_4G, TYPE_5G
+		NOT_CONNECTED, UNKNOWN, WIFI, TYPE_2G, TYPE_3G, TYPE_4G, TYPE_5G;
+		
+		@NonNull
+		@Override
+		public String toString () {
+			return name().toLowerCase();
+		}
 	}
 	private static TelephonyManager telephonyManager = null;
 	private static ConnectivityManager connectivityManager = null;
@@ -106,13 +112,13 @@ public class DetailedNetworkInfo {
 	 * @return  NOT_CONNECTED,UNKNOWN,WIFI,TYPE_2G,TYPE_3G,TYPE_4G,TYPE_5G
 	 */
 	public static String getActiveNetworkName (Context context) {
-		NETWORK network_name = NETWORK.UNKNOWN;
+		String network_name = NETWORK.UNKNOWN.toString();
 		NetworkInfo info = connectivityManager.getActiveNetworkInfo();
 		if (info == null || ! info.isConnected())
-			network_name = NETWORK.NOT_CONNECTED;
+			network_name = NETWORK.NOT_CONNECTED.toString();
 		; // not connected
 		if (info.getType() == ConnectivityManager.TYPE_WIFI) {
-			network_name = NETWORK.WIFI;
+			network_name = NETWORK.WIFI.toString();
 		}
 		if (info.getType() == ConnectivityManager.TYPE_MOBILE) {
 			int networkType = info.getSubtype();
@@ -123,7 +129,7 @@ public class DetailedNetworkInfo {
 				case TelephonyManager.NETWORK_TYPE_1xRTT:
 				case 11: // TelephonyManager.NETWORK_TYPE_IDEN: not available api< 8: using 11 as global
 				case 16:  // api < 25 class variable not present in TelephonyManager as NETWORK_TYPE_GSM
-					network_name = NETWORK.TYPE_2G;
+					network_name = NETWORK.TYPE_2G.toString();
 					break;
 				case TelephonyManager.NETWORK_TYPE_UMTS:
 				case TelephonyManager.NETWORK_TYPE_EVDO_0:
@@ -135,22 +141,22 @@ public class DetailedNetworkInfo {
 				case 14: // TelephonyManager.NETWORK_TYPE_EHRPD not available in  api<11: replacing with 14 for global
 				case 15: // TelephonyManager.NETWORK_TYPE_HSPAP: not available in api<13: replacing with for 15
 				case 17: // TelephonyManager.NETWORK_TYPE_TD_SCDMA: not available in api<25: replacing by 17
-					network_name = NETWORK.TYPE_3G;
+					network_name = NETWORK.TYPE_3G.toString();
 					break;
 				case TelephonyManager.NETWORK_TYPE_LTE: // api<11: replace by 13
 				case 18: // TelephonyManager.NETWORK_TYPE_IWLAN: not available in api<25: replace by 18
 				case 19: // LTE_CA
-					network_name = NETWORK.TYPE_4G;
+					network_name = NETWORK.TYPE_4G.toString();
 					break;
 				case 20:
-					network_name = NETWORK.TYPE_5G;
+					network_name = NETWORK.TYPE_5G.toString();
 					break;
 				default:
-					network_name = NETWORK.UNKNOWN;
+					network_name = NETWORK.UNKNOWN.toString();
 					break;
 			}
 		}
-		return String.valueOf(network_name);
+		return network_name;
 	}
 	
 	/**
