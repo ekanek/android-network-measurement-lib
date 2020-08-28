@@ -103,7 +103,8 @@ public class DetailedNetworkInfo {
 		connectedWifi.put("signalStrength", wifiInfo.getRssi());
 		connectedWifi.put("signalLevel", WifiManager.calculateSignalLevel(wifiInfo.getRssi(), numberOfLevels));
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-			connectedWifi.put("rxLinkSpeed", wifiInfo.getRxLinkSpeedMbps());
+			connectedWifi.put("wifiDownloadSpeedMb", wifiInfo.getRxLinkSpeedMbps());
+			connectedWifi.put("wifiUploadSpeedMb", wifiInfo.getTxLinkSpeedMbps());
 			connectedWifi.put("wifiNetworkName", wifiInfo.getPasspointProviderFriendlyName());
 		}
 		return connectedWifi;
