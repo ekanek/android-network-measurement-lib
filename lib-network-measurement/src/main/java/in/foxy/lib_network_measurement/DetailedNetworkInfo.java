@@ -63,8 +63,6 @@ public class DetailedNetworkInfo {
 				                 .addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR)
 				                 .build();
 		availableSimCards = new ArrayList<>();
-		simCardNetworkCapabilities = new ArrayList<>();
-		connectedWifi = new HashMap<String, Object>();
 		extractAvailableSimCardsInfo(context);
 	}
 	
@@ -97,6 +95,7 @@ public class DetailedNetworkInfo {
 	 */
 	public static Map<String, Object> getConnectedWifiInfo (Context context) {
 		int numberOfLevels = 5;
+		connectedWifi = new HashMap<String, Object>();
 		WifiInfo wifiInfo = wifiManager.getConnectionInfo();
 		connectedWifi.put("frequency", wifiInfo.getFrequency());
 		connectedWifi.put("ipAddress", wifiInfo.getIpAddress());
@@ -180,6 +179,7 @@ public class DetailedNetworkInfo {
 	 * @return List<Map < String, Object>> simCardNetworkCapabilities;
 	 */
 	public static List<Map<String, Object>> getSimCardNetworkCapabilities (Context context) {
+		simCardNetworkCapabilities = new ArrayList<>();
 		if (context.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 			Log.e("DetailedNetworkInfo:getSimSignalInfo()", "permission not granted : ACCESS_COARSE_LOCATION");
 			return simCardNetworkCapabilities;
