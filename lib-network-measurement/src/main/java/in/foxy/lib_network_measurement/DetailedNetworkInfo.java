@@ -121,11 +121,10 @@ public class DetailedNetworkInfo {
 		NetworkInfo info = connectivityManager.getActiveNetworkInfo();
 		if (info == null || ! info.isConnected())
 			network_name = NETWORK.NOT_CONNECTED.toString();
-		; // not connected
-		if (info.getType() == ConnectivityManager.TYPE_WIFI) {
+		else if (info.getType() == ConnectivityManager.TYPE_WIFI) {
 			network_name = NETWORK.WIFI.toString();
 		}
-		if (info.getType() == ConnectivityManager.TYPE_MOBILE) {
+		else if (info.getType() == ConnectivityManager.TYPE_MOBILE) {
 			int networkType = info.getSubtype();
 			switch (networkType) {
 				case TelephonyManager.NETWORK_TYPE_GPRS:
