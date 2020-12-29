@@ -180,7 +180,7 @@ public class DetailedNetworkInfo {
 	 */
 	public static List<Map<String, Object>> getSimCardNetworkCapabilities (Context context) {
 		simCardNetworkCapabilities = new ArrayList<>();
-		if ((context.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) && (context.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) ) {
+		if ((context.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) || (context.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) ) {
 			Log.e("DetailedNetworkInfo:getSimSignalInfo()", "permission not granted : ACCESS_COARSE_LOCATION");
 			return simCardNetworkCapabilities;
 		}
