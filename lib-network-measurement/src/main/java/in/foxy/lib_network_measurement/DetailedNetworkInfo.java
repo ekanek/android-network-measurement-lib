@@ -117,6 +117,9 @@ public class DetailedNetworkInfo {
 	 */
 	public static String getActiveNetworkName (Context context) {
 		String network_name = NETWORK.UNKNOWN.toString();
+		if(connectivityManager==null){
+			return network_name;
+		}
 		NetworkInfo info = connectivityManager.getActiveNetworkInfo();
 		if (info == null || ! info.isConnected())
 			network_name = NETWORK.NOT_CONNECTED.toString();
@@ -237,6 +240,9 @@ public class DetailedNetworkInfo {
 	}
 	
 	public static void registerNetworkMonitorCallback (final INetworkMonitor iNetworkMonitor) {
+		if(connectivityManager == null){
+			return;
+		}
 		connectivityManager.registerNetworkCallback(networkRequest, new ConnectivityManager.NetworkCallback() {
 			@Override
 			public void onAvailable (@NonNull android.net.Network network) {
